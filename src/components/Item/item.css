@@ -1,0 +1,114 @@
+.formulario-item {
+    display: grid;
+    gap: 0.2rem;
+    width: min(100%, 28rem);
+    margin: 0 auto;
+}
+
+.formulario-item label {
+    display: grid;
+    grid-template-columns: minmax(7rem, 1fr) minmax(0, 1.25fr);
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.formulario-item input {
+    width: 100%;
+    min-width: 0;
+    min-height: 1.9rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    background: var(--bg);
+    color: var(--text-h);
+    text-align: center;
+}
+
+.formulario-item button,
+.producto-card__acciones button {
+    min-height: 2rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--text-h);
+    border-radius: 0.5rem;
+    background: var(--text-h);
+    color: var(--bg);
+    font: inherit;
+    cursor: pointer;
+}
+
+.formulario-item button {
+    justify-self: center;
+}
+
+.formulario-item [role="alert"] {
+    margin: 0;
+    color: #dc2626;
+}
+
+.producto-card__contenido {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.producto-card__encabezado {
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.producto-card__nombre {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.producto-card__marca {
+    margin: 0.2rem 0 0;
+    font-size: 0.85rem;
+}
+
+.producto-card__datos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    text-align: center;
+}
+
+.producto-card__datos p {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 0;
+}
+
+.producto-card__datos span {
+    font-size: 0.75rem;
+}
+
+.producto-card__datos strong {
+    color: var(--text-h);
+}
+
+.producto-card__datos small {
+    grid-column: 1 / -1;
+}
+
+@media (min-width: 600px) {
+    .formulario-item {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: min(100%, 36rem);
+    }
+
+    .formulario-item label {
+        grid-template-columns: minmax(5rem, 0.8fr) minmax(0, 1.2fr);
+    }
+
+    .formulario-item button,
+    .formulario-item [role="alert"] {
+        grid-column: 1 / -1;
+    }
+}

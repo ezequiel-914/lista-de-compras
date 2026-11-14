@@ -22,24 +22,36 @@ export function Lista() {
     const [productoBloqueado, setProductoBloqueado] = useState(''); // Guarda el nombre del producto rechazado por el límite estricto.
     const [productoEnEdicion, setProductoEnEdicion] = useState<{ indice: number; producto: ItemProps } | null>(null);
     const total = productos.reduce((suma, producto) => suma + producto.precio * (producto.cantidad ?? 1), 0); // Suma el precio por unidad multiplicado por la cantidad o por uno.
-    const porcentajePresupuesto = total === 0 ? 0 : presupuestoMaximo === null || presupuestoMaximo === 0 ? 100 : (total / presupuestoMaximo) * 100; // Calcula el porcentaje usado; sin límite definido, los productos cuentan como el 100%.
+    let porcentajePresupuesto: number;
+    if (total === 0) {
+        porcentajePresupuesto = 0;
+    } else if (presupuestoMaximo === null){
+        porcentajePresupuesto = 0;
+    } else if (presupuestoMaximo === 0) {
+        porcentajePresupuesto = 100;
+    } else {
+        porcentajePresupuesto = (total / presupuestoMaximo) * 100;
+    } // Calcula el porcentaje usado; sin límite definido, los productos cuentan como el 100%.
     const estadoPresupuesto = obtenerEstadoPresupuesto(porcentajePresupuesto); // Determina los colores y la sombra que corresponden al porcentaje.
 
-    function iniciarConPresupuesto(event: SubmitEvent<HTMLFormElement>) { // Inicia la compra con el presupuesto ingresado.
+    function iniciarCompra(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
-        const valorPresupuesto = Number(presupuestoTexto); // Convierte el presupuesto ingresado a número.
 
-        if (presupuestoTexto.trim() === '' || !Number.isFinite(valorPresupuesto) || valorPresupuesto < 0) { // Comprueba que el presupuesto sea válido.
+        if (presupuestoTexto.trim() === '') {
+            setPresupuestoMaximo(null);
+            setErrorPresupuesto('');
+            setCompraIniciada(true);
+            return;
+        }
+
+        const valorPresupuesto = Number(presupuestoTexto);
+        if (!Number.isFinite(valorPresupuesto) || valorPresupuesto < 0) {
             setErrorPresupuesto('Ingresa un presupuesto válido.');
             return;
         }
 
         setPresupuestoMaximo(valorPresupuesto);
-        setCompraIniciada(true);
-    }
-
-    function iniciarSinPresupuesto() { // Inicia la compra sin establecer un límite máximo.
-        setPresupuestoMaximo(null);
+        setErrorPresupuesto('');
         setCompraIniciada(true);
     }
 
@@ -81,17 +93,20 @@ export function Lista() {
         return (
             <div className="lista">
                 <h1>Preparar lista de compras</h1>
-                <form onSubmit={iniciarConPresupuesto}>
+                <form onSubmit={iniciarCompra}>
                     <label htmlFor="presupuesto-maximo">Presupuesto máximo estimado: </label>
-                    <input id="presupuesto-maximo" type="number" min="0" step="0.01" value={presupuestoTexto} onChange={(event) => setPresupuestoTexto(event.target.value)} required />
-                    <fieldset>
-                        <legend>Tipo de presupuesto</legend>
-                        <label><input type="radio" name="modo-presupuesto" value="flexible" checked={modoPresupuesto === 'flexible'} onChange={() => setModoPresupuesto('flexible')} /> Flexible: permite superar el límite.</label>
-                        <label><input type="radio" name="modo-presupuesto" value="estricto" checked={modoPresupuesto === 'estricto'} onChange={() => setModoPresupuesto('estricto')} /> Estricto: bloquea productos que superen el límite.</label>
-                    </fieldset>
+                    <input id="presupuesto-maximo" type="number" min="0" step="0.01" value={presupuestoTexto} onChange={(event) => setPresupuestoTexto(event.target.value)} />
+                    {presupuestoTexto.trim() !== '' && (
+                        <fieldset>
+                            <legend>Tipo de presupuesto</legend>
+                            <label><input type="radio" name="modo-presupuesto" value="flexible" checked={modoPresupuesto === 'flexible'} onChange={() => setModoPresupuesto('flexible')} /> Flexible: permite superar el límite.</label>
+                            <label><input type="radio" name="modo-presupuesto" value="estricto" checked={modoPresupuesto === 'estricto'} onChange={() => setModoPresupuesto('estricto')} /> Estricto: bloquea productos que superen el límite.</label>
+                        </fieldset>
+                    )}
                     {errorPresupuesto && <p role="alert">{errorPresupuesto}</p>}
-                    <button type="submit">Iniciar con presupuesto</button>
-                    <button type="button" onClick={iniciarSinPresupuesto}>Iniciar sin presupuesto</button>
+                    <button type="submit">
+                        {presupuestoTexto.trim() === '' ? 'INICIAR SIN PRESUPUESTO MÁXIMO' : 'INICIAR CON ESTE PRESUPUESTO'}
+                    </button>
                 </form>
             </div>
         );
@@ -101,15 +116,19 @@ export function Lista() {
         <div className={`lista lista--${estadoPresupuesto}`}>
             <h2>Lista de Productos</h2>
             <FormularioItem productos={productos} onAgregar={agregarProducto} />
-            <ul>
-                {productos.map((producto, indice) => (
-                    <li key={`${producto.nombre}-${indice}`}>
-                        <Item {...producto} />
-                        <button type="button" aria-label={`Editar ${producto.nombre}`} onClick={() => setProductoEnEdicion({ indice, producto })}>editar</button>
-                        <button type="button" aria-label={`Quitar ${producto.nombre}`} onClick={() => quitarProducto(indice)}>quitar</button>
-                    </li>
-                ))}
-            </ul>
+            <div className="lista-productos">
+                <ul>
+                    {productos.map((producto, indice) => (
+                        <li className="producto-card" key={`${producto.nombre}-${indice}`}>
+                            <Item {...producto} />
+                            <div className="producto-card__acciones">
+                                <button type="button" aria-label={`Editar ${producto.nombre}`} onClick={() => setProductoEnEdicion({ indice, producto })}>Editar</button>
+                                <button type="button" aria-label={`Quitar ${producto.nombre}`} onClick={() => quitarProducto(indice)}>Quitar</button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
             <div className={`resumen-compra resumen-compra--${estadoPresupuesto}`}>
                 <p>Total de la compra: ${total.toFixed(2)}</p>
                 {presupuestoMaximo !== null && <p>Presupuesto máximo: ${presupuestoMaximo.toFixed(2)}</p>}
