@@ -91,9 +91,9 @@ export function Lista() {
 
     if (!compraIniciada) {
         return (
-            <div className="lista">
+            <div className="lista lista--inicio">
                 <h1>Preparar lista de compras</h1>
-                <form onSubmit={iniciarCompra}>
+                <form className="formulario-inicio" onSubmit={iniciarCompra}>
                     <label htmlFor="presupuesto-maximo">Presupuesto máximo estimado: </label>
                     <input id="presupuesto-maximo" type="number" min="0" step="0.01" value={presupuestoTexto} onChange={(event) => setPresupuestoTexto(event.target.value)} />
                     {presupuestoTexto.trim() !== '' && (
@@ -113,7 +113,7 @@ export function Lista() {
     }
 
     return (
-        <div className={`lista lista--${estadoPresupuesto}`}>
+        <div className={`lista lista--${estadoPresupuesto}${presupuestoMaximo !== null ? ' lista--con-presupuesto' : ''}`}>
             <h2>Lista de Productos</h2>
             <FormularioItem productos={productos} onAgregar={agregarProducto} />
             <div className="lista-productos">
@@ -129,9 +129,11 @@ export function Lista() {
                     ))}
                 </ul>
             </div>
-            <div className={`resumen-compra resumen-compra--${estadoPresupuesto}`}>
-                <p>Total de la compra: ${total.toFixed(2)}</p>
-                {presupuestoMaximo !== null && <p>Presupuesto máximo: ${presupuestoMaximo.toFixed(2)}</p>}
+            <div className={`resumen-compra ${presupuestoMaximo === null ? 'resumen-compra--sin-presupuesto' : `resumen-compra--${estadoPresupuesto}`}`}>
+                <p><span>Total de la compra</span><strong>${total.toFixed(2)}</strong></p>
+                {presupuestoMaximo !== null && (
+                    <p><span>Presupuesto máximo</span><strong>${presupuestoMaximo.toFixed(2)}</strong></p>
+                )}
             </div>
             {productoEnEdicion && (
                 <EditarItem
